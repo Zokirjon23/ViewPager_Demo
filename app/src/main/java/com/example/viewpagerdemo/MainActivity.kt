@@ -18,25 +18,34 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: PagerAdapter
     private lateinit var adapterList: MyListAdapter
-    private lateinit var heavyAdapter: MyListAdapter
+    private lateinit var saladAdapter: MyListAdapter
     private lateinit var breadAdapter: MyListAdapter
     private lateinit var drinksAdapter: MyListAdapter
+    private lateinit var heavyAdapter: MyListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        adapter = PagerAdapter(lifecycle, supportFragmentManager)
+        adapter = PagerAdapter(
+            lifecycle,
+            supportFragmentManager,
+            listOf(TableFourScreen(), TableTwoScreen())
+        )
         binding.pager.adapter = adapter
         adapterList = MyListAdapter()
-        heavyAdapter = MyListAdapter()
+        saladAdapter = MyListAdapter()
         breadAdapter = MyListAdapter()
         drinksAdapter = MyListAdapter()
+        heavyAdapter = MyListAdapter()
 
         binding.recycleView.adapter = adapterList
-        binding.heavyFoods.adapter = heavyAdapter
+        binding.salad.adapter = saladAdapter
+        binding.heavyFoods.adapter = saladAdapter
         binding.breadListView.adapter = breadAdapter
         binding.drinksListView.adapter = drinksAdapter
+        binding.heavyFoods.adapter = heavyAdapter
+        binding.pager.isUserInputEnabled = false
 
         adapterList.submitList(
             listOf(
@@ -52,26 +61,26 @@ class MainActivity : AppCompatActivity() {
         breadAdapter.submitList(
             listOf(
                 R.drawable.bread,
+                R.drawable.bread_2,
                 R.drawable.bread,
                 R.drawable.bread,
-                R.drawable.bread,
-                R.drawable.bread,
+                R.drawable.bread_2,
                 R.drawable.bread
             )
         )
         drinksAdapter.submitList(
             listOf(
                 R.drawable.cola,
-                R.drawable.fanta,
+                R.drawable.coffe,
+                R.drawable.coffe,
                 R.drawable.cola,
-                R.drawable.fanta,
                 R.drawable.cola,
-                R.drawable.fanta,
+                R.drawable.coffe,
                 R.drawable.cola,
-                R.drawable.fanta,
+                R.drawable.coffe,
             )
         )
-        heavyAdapter.submitList(
+        saladAdapter.submitList(
             listOf(
                 R.drawable.food_2,
                 R.drawable.food_2,
@@ -82,20 +91,49 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
+        heavyAdapter.submitList(
+            listOf(
+                R.drawable.heavy_food,
+                R.drawable.heavy_food,
+                R.drawable.heavy_food,
+                R.drawable.heavy_food,
+                R.drawable.heavy_food,
+            )
+        )
+
         adapterList.setOnClick { it, s, pos ->
-            animation(it, s, pos,FoodType.LIQUID,binding.recycleView.y)
+            val location = IntArray(2)
+            val itemView = binding.recycleView.getChildAt(pos)
+            itemView.getLocationInWindow(location)
+            animation(it, s, FoodType.LIQUID, location)
         }
 
         heavyAdapter.setOnClick { it, s, pos ->
-            animation(it, s, pos,FoodType.HEAVY,binding.heavyFoods.y)
+            val location = IntArray(2)
+            val itemView = binding.heavyFoods.getChildAt(pos)
+            itemView.getLocationInWindow(location)
+            animation(it, s, FoodType.HEAVY, location)
+        }
+
+        saladAdapter.setOnClick { it, s, pos ->
+            val location = IntArray(2)
+            val itemView = binding.heavyFoods.getChildAt(pos)
+            itemView.getLocationInWindow(location)
+            animation(it, s, FoodType.SALAD, location)
         }
 
         breadAdapter.setOnClick { it, s, pos ->
-            animation(it, s, pos,FoodType.BREAD,binding.breadListView.y)
+            val location = IntArray(2)
+            val itemView = binding.breadListView.getChildAt(pos)
+            itemView.getLocationInWindow(location)
+            animation(it, s, FoodType.BREAD, location)
         }
 
         drinksAdapter.setOnClick { it, s, pos ->
-            animation(it, s, pos,FoodType.DRINK,binding.drinksListView.y)
+            val location = IntArray(2)
+            val itemView = binding.drinksListView.getChildAt(pos)
+            itemView.getLocationInWindow(location)
+            animation(it, s, FoodType.DRINK, location)
         }
 
 
@@ -110,12 +148,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun animation(it: View, s: Int, pos: Int,type: FoodType,y : Float) {
+    private fun animation(it: View, s: Int, type: FoodType, location: IntArray) {
         val imageView = ImageView(this)
         imageView.layoutParams = ViewGroup.LayoutParams(it.width, it.height)
 
-        imageView.x = (it.width * pos).toFloat()
-        imageView.y = y
+        imageView.x = location[0].toFloat()
+        imageView.y = location[1].toFloat()
         Glide.with(this).load(s).into(imageView)
         binding.root.addView(imageView)
 
@@ -128,7 +166,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             adapter.clickEvent(
                 binding.pager.currentItem,
-                Event.OnReceive(s, it.width, it.height,type)
+                Event.OnReceive(s, it.width, it.height, type)
             )
             delay(420)
             binding.root.removeView(imageView)

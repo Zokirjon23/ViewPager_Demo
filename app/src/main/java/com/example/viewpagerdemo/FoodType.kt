@@ -1,5 +1,5 @@
 package com.example.viewpagerdemo
 
 enum class FoodType{
-    HEAVY,DRINK,BREAD,LIQUID
+    SALAD,DRINK,BREAD,LIQUID,HEAVY
 }

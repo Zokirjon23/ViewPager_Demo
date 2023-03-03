@@ -5,7 +5,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
-class PagerAdapter(lifeScope: Lifecycle, fm: FragmentManager) :
+class PagerAdapter(lifeScope: Lifecycle, fm: FragmentManager,private val list: List<TableFragment>) :
     FragmentStateAdapter(fm, lifeScope) {
 
     private var listeners = ArrayList<(Event) -> Unit>()
@@ -13,7 +13,7 @@ class PagerAdapter(lifeScope: Lifecycle, fm: FragmentManager) :
     override fun getItemCount() = 2
 
     override fun createFragment(position: Int): Fragment {
-        val fragment = InnerFragment()
+        val fragment = list[position]
         listeners.add {
             fragment.setData(it)
         }
