@@ -39,10 +39,10 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
 
 
     private val drinks = listOf(
-        Point(0.228f, 0.345f),
-        Point(0.728f, 0.216f),
-        Point(0.382f, 0.524f),
-        Point(0.934f, 0.353f)
+        Point(0.112f, 0.337f),
+        Point(0.6f, 0.216f),
+        Point(0.26f, 0.524f),
+        Point(0.806f, 0.345f)
     )
 
     private val heavy = listOf(
@@ -63,7 +63,7 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                             val image = createImage(event)
                             if (drinkListPos > 1)
                                 image.elevation = 3f
-                            image.x = drinks[drinkListPos].x * binding.root.width - event.width
+                            image.x = drinks[drinkListPos].x * binding.root.width - event.width/2
                             image.y = drinks[drinkListPos].y * binding.root.height - event.height
                             drinkListPos++
                             animation(image, event)
@@ -200,15 +200,15 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
             }
 
 
-//            Log.d(
-//                "IMAGE_X_P", "drink ${(view.x + view.width) / binding.root.width} " +
-//                        "" + "${(view.y + view.height) / binding.root.height}"
-//            )
-
             Log.d(
-                "IMAGE_X_P", "other ${(view.x + (view.width/2)) / binding.root.width} " +
-                        "" + "${(view.y + (view.height/2)) / binding.root.height}"
+                "IMAGE_X_P", "drink ${(view.x + (view.width/2)) / binding.root.width} " +
+                        "" + "${(view.y + view.height) / binding.root.height}"
             )
+
+//            Log.d(
+//                "IMAGE_X_P", "other ${(view.x + (view.width/2)) / binding.root.width} " +
+//                        "" + "${(view.y + (view.height/2)) / binding.root.height}"
+//            )
             true
         }
     }
