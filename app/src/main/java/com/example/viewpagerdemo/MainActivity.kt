@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.viewpagerdemo.databinding.ActivityMainBinding
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var breadAdapter: MyListAdapter
     private lateinit var drinksAdapter: MyListAdapter
     private lateinit var heavyAdapter: MyListAdapter
+
+    private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +52,12 @@ class MainActivity : AppCompatActivity() {
 
         adapterList.submitList(
             listOf(
-                R.drawable.food,
-                R.drawable.food,
-                R.drawable.food,
-                R.drawable.food,
-                R.drawable.food,
-                R.drawable.food,
-                R.drawable.food,
+                R.drawable.food_2,
+                R.drawable.suyuq,
+                R.drawable.suyuq,
+                R.drawable.suyuq,
+                R.drawable.suyuq,
+                R.drawable.suyuq,
             )
         )
         breadAdapter.submitList(
