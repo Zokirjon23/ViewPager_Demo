@@ -34,20 +34,22 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
         Point(0.7f,0.344f)
     )
     private val salads = listOf(
-        Point(0.7f, 0.237f),
-        Point(0.176f, 0.397f),
-        Point(0.367f, 0.236f),
-        Point(0.56f, 0.384f)
+        Point(0.621f, 0.245f),
+        Point(0.675f, 0.29f),
+        Point(0.347f, 0.325f),
+        Point(0.395f, 0.388f)
     )
 
-    private val breads = listOf(Point(0.441f, 0.311f))
+    private val breads = listOf(Point(0.505f, 0.316f))
 
 
     private val drinks = listOf(
-        Point(0.08f,0.32f),
-        Point(0.13f,0.31f),
-        Point(0.109f,0.345f)
+        Point(0.14f,0.36f),
+        Point(0.195f,0.36f),
+        Point(0.167f,0.385f)
     )
+
+    private var isMoveFood = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel.dataFlow.onEach { event ->
@@ -59,8 +61,8 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                                 val image = createImage(event)
                                 if (drinkListPos > 1)
                                     image.elevation = 3f
-                                image.x = drinks[drinkListPos].x * binding.root.width - event.width/2
-                                image.y = drinks[drinkListPos].y * binding.root.height - event.height
+                                image.x = drinks[drinkListPos].x * binding.container.width - event.width/2
+                                image.y = drinks[drinkListPos].y * binding.container.height - event.height
                                 drinkListPos++
                                 animation(image, event)
                                 moveView(image)
@@ -69,9 +71,9 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                         FoodType.BREAD -> {
                             if (breadListPos < breads.size) {
                                 val image = createImage(event)
-                                image.x = breads[breadListPos].x * binding.root.width - event.width/2
+                                image.x = breads[breadListPos].x * binding.container.width - event.width/2
                                 image.y =
-                                    breads[breadListPos].y * binding.root.height - event.height/2
+                                    breads[breadListPos].y * binding.container.height - event.height/2
                                 breadListPos++
                                 animation(image, event)
                                 moveView(image)
@@ -82,9 +84,9 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                                 val image = createImage(event)
                                 image.elevation = 2f
                                 image.x =
-                                    (liquidFoods[liquidListPos].x * binding.root.width - event.width/2)
+                                    (liquidFoods[liquidListPos].x * binding.container.width - event.width/2)
                                 image.y =
-                                    (liquidFoods[liquidListPos].y *  binding.root.height - event.height/2)
+                                    (liquidFoods[liquidListPos].y *  binding.container.height - event.height/2)
                                 liquidListPos++
                                 animation(image, event)
                                 moveView(image)
@@ -95,9 +97,9 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                                 val image = createImage(event)
                                 image.elevation = 1f
                                 image.x =
-                                    salads[saladPos].x * binding.root.width - event.width/2
+                                    salads[saladPos].x * binding.container.width - event.width/2
                                 image.y =
-                                    salads[saladPos].y * binding.root.height - event.height/2
+                                    salads[saladPos].y * binding.container.height - event.height/2
                                 saladPos++
                                 animation(image, event)
                                 moveView(image)
@@ -109,9 +111,9 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                                 val image = createImage(event)
                                 image.elevation = 2f
                                 image.x =
-                                    (liquidFoods[liquidListPos].x * binding.root.width - event.width/2)
+                                    (liquidFoods[liquidListPos].x * binding.container.width - event.width/2)
                                 image.y =
-                                    (liquidFoods[liquidListPos].y *  binding.root.height - event.height/2)
+                                    (liquidFoods[liquidListPos].y *  binding.container.height - event.height/2)
                                 liquidListPos++
                                 animation(image, event)
                                 moveView(image)
@@ -120,26 +122,29 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
                     }
                 }
                 is Event.RemoveLast -> {
-                    if (binding.frame.childCount > 0) {
-                        val removeView = binding.frame.getChildAt(binding.root.childCount - 1)
+                    if (binding.table.childCount > 0) {
+                        val removeView = binding.table.getChildAt(binding.table.childCount-1)
                         removePosition(removeView.tag as FoodType)
-                        binding.frame.removeViewAt(binding.frame.childCount-1)
+                        binding.table.removeViewAt(binding.table.childCount-1)
                     }
 
-                    binding.frame.animate().translationY(0f).translationX(0f).start()
+                    binding.table.animate().translationY(0f).translationX(0f).start()
 
-                    binding.root.animate()
+                    binding.container.animate()
                         .scaleX(1f)
                         .scaleY(1f)
                         .start()
                 }
                 is Event.ZoomOut -> {
-                    binding.frame.animate().translationY(0f).translationX(0f).start()
+                    binding.table.animate().translationY(0f).translationX(0f).start()
 
-                    binding.root.animate()
+                    binding.container.animate()
                         .scaleX(1f)
                         .scaleY(1f)
                         .start()
+                }
+                is Event.UserMoveFood -> {
+                    isMoveFood = event.isTouchable
                 }
             }
 
@@ -170,14 +175,14 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
     private fun animation(image: View, it: Event.OnReceive) {
         lifecycleScope.launch {
             delay(390)
-            binding.frame.addView(image)
+            binding.table.addView(image)
         }
 
-        val y = (binding.root.height / 2 - it.height / 2) - image.y
-        val x = (binding.root.width / 2 - it.width / 2) - image.x
-        binding.frame.animate().translationX(x).translationY(y).start()
+        val y = (binding.container.height / 2 - it.height / 2) - image.y
+        val x = (binding.container.width / 2 - it.width / 2) - image.x
+        binding.table.animate().translationX(x).translationY(y).start()
 
-        binding.root.animate()
+        binding.container.animate()
             .scaleX(2f)
             .scaleY(2f)
             .start()
@@ -195,61 +200,74 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun moveView(view: View) {
-        var x = 0.0
-        var y = 0.0
+            var x = 0.0
+            var y = 0.0
 
-        view.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    x = view.x.toDouble() - event.rawX
-                    y = view.y.toDouble() - event.rawY
+            view.setOnTouchListener { _, event ->
+                if (isMoveFood){
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            x = view.x.toDouble() - event.rawX
+                            y = view.y.toDouble() - event.rawY
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            view.y = event.rawY + y.toFloat()
+                            view.x = event.rawX + x.toFloat()
+                        }
+                    }
                 }
-                MotionEvent.ACTION_MOVE -> {
-                    view.y = event.rawY + y.toFloat()
-                    view.x = event.rawX + x.toFloat()
-                }
-            }
-
 
             Log.d(
-                "IMAGE_X_P", "drink ${(view.x + (view.width/2)) / binding.root.width} " +
-                        "" + "${(view.y + view.height) / binding.root.height}"
+                "IMAGE_X_P", "drink ${(view.x + (view.width/2)) / binding.container.width} " +
+                        "" + "${(view.y + view.height) / binding.container.height}"
             )
 
-//            Log.d(
-//                "IMAGE_X_P", "other ${(view.x + (view.width/2)) / binding.root.width} " +
-//                        "" + "${(view.y + (view.height/2)) / binding.root.height}"
-//            )
-            true
-        }
+//                Log.d(
+//                    "IMAGE_X_P", "other ${(view.x + (view.width/2)) / binding.container.width} " +
+//                            "" + "${(view.y + (view.height/2)) / binding.container.height}"
+//                )
+                true
+            }
     }
 }
 
-//*
+
+
+// region table8 pos
 
 val FOOD_POS_1 = listOf(
-    Point(0.248f,0.26f),
-    Point(0.5f,0.195f),
-    Point(0.421f,0.42f),
-    Point(0.698f,0.344f)
+    Point(0.298f,0.303f),
+    Point(0.475f,0.244f),
+    Point(0.635f,0.184f),
+    Point(0.798f,0.211f),
+    Point(0.785f,0.321f),
+    Point(0.613f,0.389f),
+    Point(0.421f,0.466f),
+    Point(0.237f,0.424f)
 )
 
 val FOOD_POS_2 = listOf(
-    Point(0.7f, 0.237f),
-    Point(0.176f, 0.397f),
-    Point(0.367f, 0.236f),
-    Point(0.56f, 0.384f)
+    Point(0.341f, 0.365f),
+    Point(0.378f, 0.41f),
+    Point(0.521f, 0.297f),
+    Point(0.565f, 0.34f),
+    Point(0.675f, 0.236f),
+    Point(0.723f, 0.277f)
 )
 
-val FOOD_POS_3 = listOf(Point(0.441f, 0.311f))
+val FOOD_POS_3 = listOf(
+    Point(0.289f, 0.522f),
+    Point(0.723f, 0.15f)
+)
 
 val FOOD_POS_4 = listOf(
-    Point(0.3f,0.35f),
-    Point(0.57f,0.27f)
+    Point(0.442f,0.352f),
+    Point(0.621f,0.289f)
 )
 
 val FOOD_POS_5 = listOf(
-    Point(0.08f,0.32f),
-    Point(0.13f,0.31f),
-    Point(0.109f,0.345f)
+    Point(0.14f,0.36f),
+    Point(0.195f,0.36f),
+    Point(0.167f,0.385f)
 )
+// endregion

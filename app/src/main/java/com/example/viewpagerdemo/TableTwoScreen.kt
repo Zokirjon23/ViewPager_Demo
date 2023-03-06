@@ -121,6 +121,9 @@ class TableTwoScreen : TableFragment(R.layout.fragment_inner) {
                     .scaleY(1f)
                     .start()
             }
+            is Event.UserMoveFood ->{
+
+            }
         }
     }
 

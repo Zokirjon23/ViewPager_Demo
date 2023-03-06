@@ -1,11 +1,13 @@
 package com.example.viewpagerdemo
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.viewpagerdemo.databinding.ActivityMainBinding
@@ -48,7 +50,6 @@ class MainActivity : AppCompatActivity() {
         binding.breadListView.adapter = breadAdapter
         binding.drinksListView.adapter = drinksAdapter
         binding.heavyFoods.adapter = heavyAdapter
-        binding.pager.isUserInputEnabled = false
 
         adapterList.submitList(
             listOf(
@@ -141,6 +142,26 @@ class MainActivity : AppCompatActivity() {
 
         binding.backFood.setOnClickListener {
             adapter.clickEvent(binding.pager.currentItem, Event.RemoveLast)
+        }
+
+        binding.hand.setOnClickListener {
+            adapter.clickEvent(
+                binding.pager.currentItem,
+                Event.UserMoveFood(!binding.hand.isActivated)
+            )
+
+            binding.hand.isActivated = !binding.hand.isActivated
+            binding.hand.setImageResource(R.drawable.ic_touch)
+
+
+            if (binding.hand.isActivated) {
+                binding.hand.setBackgroundResource(R.drawable.hand_border)
+            } else {
+                binding.hand.setBackgroundColor(Color.TRANSPARENT)
+            }
+            binding.pager.isUserInputEnabled = !binding.hand.isActivated
+            binding.backFood.isVisible = !binding.hand.isActivated
+            binding.zoomOut.isVisible = !binding.hand.isActivated
         }
 
         binding.zoomOut.setOnClickListener {

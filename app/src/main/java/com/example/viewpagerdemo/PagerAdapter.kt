@@ -1,12 +1,13 @@
 package com.example.viewpagerdemo
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
-class PagerAdapter(lifeScope: Lifecycle, fm: FragmentManager,private val list: List<TableFragment>) :
-    FragmentStateAdapter(fm, lifeScope) {
+class PagerAdapter(fragment: FragmentActivity,private val list: List<Coordinate>) :
+    FragmentStateAdapter(fragment) {
 
     private var listeners = ArrayList<(Event) -> Unit>()
 
