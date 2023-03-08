@@ -32,11 +32,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        adapter = PagerAdapter(
-            lifecycle,
-            supportFragmentManager,
-            listOf(TableFourScreen(), TableTwoScreen())
-        )
+        adapter = PagerAdapter(this)
+
         binding.pager.adapter = adapter
         adapterList = MyListAdapter()
         saladAdapter = MyListAdapter()

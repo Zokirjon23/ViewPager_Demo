@@ -18,114 +18,56 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class TableFourScreen : TableFragment(R.layout.screen_table_four) {
+class TableFourScreen(private val coordinate: List<Coordinate>, private val imageResId: Int) :
+    TableFragment(R.layout.screen_table_four) {
 
     private val binding by viewBinding(ScreenTableFourBinding::bind)
     private val viewModel by viewModels<TableFourViewModel>()
-    private var drinkListPos = 0
-    private var breadListPos = 0
-    private var heavyListPos = 0
-    private var liquidListPos = 0
-    private var saladPos = 0
-    private val liquidFoods = listOf(
-        Point(0.248f,0.26f),
-        Point(0.5f,0.195f),
-        Point(0.421f,0.42f),
-        Point(0.7f,0.344f)
-    )
-    private val salads = listOf(
-        Point(0.621f, 0.245f),
-        Point(0.675f, 0.29f),
-        Point(0.347f, 0.325f),
-        Point(0.395f, 0.388f)
-    )
 
-    private val breads = listOf(Point(0.505f, 0.316f))
-
-
-    private val drinks = listOf(
-        Point(0.14f,0.36f),
-        Point(0.195f,0.36f),
-        Point(0.167f,0.385f)
-    )
-
-    private var isMoveFood = false
+    private var isMoveFood = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.table.setBackgroundResource(imageResId)
+
+
         viewModel.dataFlow.onEach { event ->
             when (event) {
                 is Event.OnReceive -> {
                     when (event.type) {
                         FoodType.DRINK -> {
-                            if (drinkListPos < drinks.size) {
+                            if (coordinate[4].currentPos < coordinate[4].list.size) {
                                 val image = createImage(event)
-                                if (drinkListPos > 1)
-                                    image.elevation = 3f
-                                image.x = drinks[drinkListPos].x * binding.container.width - event.width/2
-                                image.y = drinks[drinkListPos].y * binding.container.height - event.height
-                                drinkListPos++
+//                                if (drinkListPos > 1)
+//                                    image.elevation = 3f
+                                image.x =
+                                    coordinate[4].currentX() * binding.container.width - event.width / 2
+                                image.y =
+                                    coordinate[4].currentY() * binding.container.height - event.height
+                                coordinate[4].currentPos++
                                 animation(image, event)
                                 moveView(image)
                             }
                         }
                         FoodType.BREAD -> {
-                            if (breadListPos < breads.size) {
-                                val image = createImage(event)
-                                image.x = breads[breadListPos].x * binding.container.width - event.width/2
-                                image.y =
-                                    breads[breadListPos].y * binding.container.height - event.height/2
-                                breadListPos++
-                                animation(image, event)
-                                moveView(image)
-                            }
+                            createAction(2, event)
                         }
                         FoodType.LIQUID -> {
-                            if (liquidListPos < liquidFoods.size) {
-                                val image = createImage(event)
-                                image.elevation = 2f
-                                image.x =
-                                    (liquidFoods[liquidListPos].x * binding.container.width - event.width/2)
-                                image.y =
-                                    (liquidFoods[liquidListPos].y *  binding.container.height - event.height/2)
-                                liquidListPos++
-                                animation(image, event)
-                                moveView(image)
-                            }
+                            createAction(0, event)
                         }
                         FoodType.SALAD -> {
-                            if (saladPos < salads.size) {
-                                val image = createImage(event)
-                                image.elevation = 1f
-                                image.x =
-                                    salads[saladPos].x * binding.container.width - event.width/2
-                                image.y =
-                                    salads[saladPos].y * binding.container.height - event.height/2
-                                saladPos++
-                                animation(image, event)
-                                moveView(image)
-                            }
+                            createAction(1, event)
                         }
 
                         FoodType.HEAVY -> {
-                            if (liquidListPos < liquidFoods.size) {
-                                val image = createImage(event)
-                                image.elevation = 2f
-                                image.x =
-                                    (liquidFoods[liquidListPos].x * binding.container.width - event.width/2)
-                                image.y =
-                                    (liquidFoods[liquidListPos].y *  binding.container.height - event.height/2)
-                                liquidListPos++
-                                animation(image, event)
-                                moveView(image)
-                            }
+                            createAction(0, event)
                         }
                     }
                 }
                 is Event.RemoveLast -> {
                     if (binding.table.childCount > 0) {
-                        val removeView = binding.table.getChildAt(binding.table.childCount-1)
+                        val removeView = binding.table.getChildAt(binding.table.childCount - 1)
                         removePosition(removeView.tag as FoodType)
-                        binding.table.removeViewAt(binding.table.childCount-1)
+                        binding.table.removeViewAt(binding.table.childCount - 1)
                     }
 
                     binding.table.animate().translationY(0f).translationX(0f).start()
@@ -163,11 +105,11 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
 //        image.layoutParams = FrameLayout.LayoutParams(event.width, event.height)
 //        image.tag = event.type
 //        image.setBackgroundColor(requireContext().getColor(R.color.image_color))
-        val myView = LayoutInflater.from(requireContext()).inflate(R.layout.item,null,false)
+        val myView = LayoutInflater.from(requireContext()).inflate(R.layout.item, null, false)
         myView.layoutParams = FrameLayout.LayoutParams(event.width, event.height)
         myView.tag = event.type
-        val image = myView.findViewById<ImageView>(R.id.image_item)
-        Glide.with(this).load(event.resId).into(image)
+//        val image = myView.findViewById<ImageView>(R.id.image_item)
+//        Glide.with(this).load(event.resId).into(image)
 
         return myView
     }
@@ -189,85 +131,55 @@ class TableFourScreen : TableFragment(R.layout.screen_table_four) {
     }
 
     private fun removePosition(type: FoodType) {
-        when (type) {
-            FoodType.DRINK -> drinkListPos--
-            FoodType.BREAD -> breadListPos--
-            FoodType.SALAD -> saladPos--
-            FoodType.LIQUID -> liquidListPos--
-            FoodType.HEAVY -> liquidListPos--
+//        when (type) {
+//            FoodType.DRINK -> drinkListPos--
+//            FoodType.BREAD -> breadListPos--
+//            FoodType.SALAD -> saladPos--
+//            FoodType.LIQUID -> liquidListPos--
+//            FoodType.HEAVY -> liquidListPos--
+//        }
+    }
+
+    private fun createAction(pos: Int, event: Event.OnReceive) {
+        if (coordinate[pos].currentPos < coordinate[pos].list.size) {
+            val image = createImage(event)
+            image.x = coordinate[pos].currentX() * binding.container.width - (event.width / 2)
+            image.y = coordinate[pos].currentY() * binding.container.height - (event.height / 2)
+            coordinate[pos].currentPos++
+            animation(image, event)
+            moveView(image)
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun moveView(view: View) {
-            var x = 0.0
-            var y = 0.0
+        var x = 0.0
+        var y = 0.0
 
-            view.setOnTouchListener { _, event ->
-                if (isMoveFood){
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            x = view.x.toDouble() - event.rawX
-                            y = view.y.toDouble() - event.rawY
-                        }
-                        MotionEvent.ACTION_MOVE -> {
-                            view.y = event.rawY + y.toFloat()
-                            view.x = event.rawX + x.toFloat()
-                        }
+        view.setOnTouchListener { _, event ->
+            if (isMoveFood) {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        x = view.x.toDouble() - event.rawX
+                        y = view.y.toDouble() - event.rawY
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        view.y = event.rawY + y.toFloat()
+                        view.x = event.rawX + x.toFloat()
                     }
                 }
-
-            Log.d(
-                "IMAGE_X_P", "drink ${(view.x + (view.width/2)) / binding.container.width} " +
-                        "" + "${(view.y + view.height) / binding.container.height}"
-            )
-
-//                Log.d(
-//                    "IMAGE_X_P", "other ${(view.x + (view.width/2)) / binding.container.width} " +
-//                            "" + "${(view.y + (view.height/2)) / binding.container.height}"
-//                )
-                true
             }
+
+//            Log.d(
+//                "IMAGE_X_P", "drink ${(view.x + (view.width / 2)) / binding.container.width} " +
+//                        "" + "${(view.y + view.height) / binding.container.height}"
+//            )
+
+                Log.d(
+                    "IMAGE_X_P", "other ${(view.x + (view.width/2)) / binding.container.width} " +
+                            "" + "${(view.y + (view.height/2)) / binding.container.height}"
+                )
+            true
+        }
     }
 }
-
-
-
-// region table8 pos
-
-val FOOD_POS_1 = listOf(
-    Point(0.298f,0.303f),
-    Point(0.475f,0.244f),
-    Point(0.635f,0.184f),
-    Point(0.798f,0.211f),
-    Point(0.785f,0.321f),
-    Point(0.613f,0.389f),
-    Point(0.421f,0.466f),
-    Point(0.237f,0.424f)
-)
-
-val FOOD_POS_2 = listOf(
-    Point(0.341f, 0.365f),
-    Point(0.378f, 0.41f),
-    Point(0.521f, 0.297f),
-    Point(0.565f, 0.34f),
-    Point(0.675f, 0.236f),
-    Point(0.723f, 0.277f)
-)
-
-val FOOD_POS_3 = listOf(
-    Point(0.289f, 0.522f),
-    Point(0.723f, 0.15f)
-)
-
-val FOOD_POS_4 = listOf(
-    Point(0.442f,0.352f),
-    Point(0.621f,0.289f)
-)
-
-val FOOD_POS_5 = listOf(
-    Point(0.14f,0.36f),
-    Point(0.195f,0.36f),
-    Point(0.167f,0.385f)
-)
-// endregion
